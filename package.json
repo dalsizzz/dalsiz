@@ -1,0 +1,17 @@
+{
+  "name": "dalsiz",
+  "version": "1.0.0",
+  "description": "Kurum içi, uçtan uca şifreli mesajlaşma uygulaması (Signal benzeri)",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "start": "node --no-warnings=ExperimentalWarning server.js",
+    "test": "node --no-warnings=ExperimentalWarning test/smoke.js"
+  },
+  "engines": {
+    "node": ">=22.13"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

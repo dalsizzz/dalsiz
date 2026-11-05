@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2c6bed">
+  <title>Dalsız</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="module" src="/js/app.js"></script>
+</head>
+<body>
+  <!-- Giriş / kayıt -->
+  <section id="auth" class="auth hidden">
+    <div class="auth-card">
+      <img src="/icon.svg" alt="" class="auth-logo">
+      <h1>Dalsız</h1>
+      <p class="muted">Kurum içi, uçtan uca şifreli mesajlaşma</p>
+      <div class="tabs">
+        <button type="button" class="tab active" data-mode="login">Giriş yap</button>
+        <button type="button" class="tab" data-mode="register">Kayıt ol</button>
+      </div>
+      <form id="auth-form" autocomplete="on">
+        <label>Kullanıcı adı
+          <input name="username" required minlength="3" maxlength="32" pattern="[a-zA-Z0-9._\-]+" autocomplete="username" autocapitalize="none">
+        </label>
+        <label class="reg-only">Görünen ad
+          <input name="displayName" maxlength="64" autocomplete="name">
+        </label>
+        <label>Parola
+          <input name="password" type="password" required minlength="8" autocomplete="current-password">
+        </label>
+        <label class="reg-only invite-field">Davet kodu
+          <input name="inviteCode" autocomplete="off">
+        </label>
+        <p id="auth-error" class="error" role="alert"></p>
+        <button type="submit" class="primary wide" id="auth-submit">Giriş yap</button>
+        <p class="hint reg-only">Parolanız şifreleme anahtarınızı korur. Unutulursa mesaj geçmişi kurtarılamaz.</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- Ana ekran -->
+  <main id="app" class="app hidden">
+    <aside class="sidebar">
+      <header class="bar">
+        <button type="button" class="avatar-btn" id="me-btn" title="Ayarlar"></button>
+        <h2>Sohbetler</h2>
+        <button type="button" class="icon-btn" id="new-chat-btn" title="Yeni sohbet" aria-label="Yeni sohbet">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </header>
+      <div class="search"><input id="conv-search" type="search" placeholder="Ara"></div>
+      <ul id="conv-list" class="conv-list"></ul>
+      <div id="conn-status" class="conn-status hidden">Bağlanıyor…</div>
+    </aside>
+
+    <section class="chat" id="chat">
+      <div class="empty-chat" id="empty-chat">
+        <img src="/icon.svg" alt="">
+        <p>Mesajlaşmaya başlamak için bir sohbet seçin</p>
+        <p class="muted small">🔒 Mesajlar uçtan uca şifrelidir</p>
+      </div>
+      <div class="chat-inner hidden" id="chat-inner">
+        <header class="bar chat-bar">
+          <button type="button" class="icon-btn back-btn" id="back-btn" aria-label="Geri">
+            <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <div class="chat-title" id="chat-title-btn">
+            <div class="avatar" id="chat-avatar"></div>
+            <div>
+              <div class="name" id="chat-name"></div>
+              <div class="sub" id="chat-sub"></div>
+            </div>
+          </div>
+          <button type="button" class="icon-btn" id="chat-info-btn" title="Sohbet ayarları" aria-label="Sohbet ayarları">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>
+          </button>
+        </header>
+        <div class="messages" id="messages"></div>
+        <div class="typing hidden" id="typing"></div>
+        <div class="attach-preview hidden" id="attach-preview"></div>
+        <form class="composer" id="composer">
+          <button type="button" class="icon-btn" id="attach-btn" title="Fotoğraf, video veya dosya ekle" aria-label="Dosya ekle">
+            <svg viewBox="0 0 24 24"><path d="M21 12.5l-8.5 8.5a5 5 0 01-7-7L14 5.5a3.5 3.5 0 015 5L10.5 19a2 2 0 01-3-3L15 8.5"/></svg>
+          </button>
+          <input type="file" id="file-input" multiple hidden accept="image/*,video/*,audio/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip">
+          <textarea id="msg-input" rows="1" placeholder="Mesaj" enterkeyhint="send"></textarea>
+          <button type="submit" class="send-btn" id="send-btn" aria-label="Gönder">
+            <svg viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-2.5-6.5z"/></svg>
+          </button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- Genel modal -->
+  <div class="modal-back hidden" id="modal-back">
+    <div class="modal" role="dialog" aria-modal="true">
+      <header class="modal-head">
+        <h3 id="modal-title"></h3>
+        <button type="button" class="icon-btn" id="modal-close" aria-label="Kapat">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </header>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Tam ekran medya -->
+  <div class="lightbox hidden" id="lightbox"></div>
+
+  <template id="tpl-conv">
+    <li class="conv">
+      <div class="avatar"></div>
+      <div class="conv-main">
+        <div class="conv-top"><span class="conv-name"></span><span class="conv-time"></span></div>
+        <div class="conv-bottom"><span class="conv-preview"></span><span class="badge hidden"></span></div>
+      </div>
+    </li>
+  </template>
+</body>
+</html>
